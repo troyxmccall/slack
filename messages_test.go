@@ -50,7 +50,7 @@ func TestStarredMessage(t *testing.T) {
 	assert.NotNil(t, message)
 	assert.Equal(t, "is testing", message.Text)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "me_message", message.SubType)
+	assert.Equal(t, MsgSubTypeMeMessage, message.SubType)
 	assert.Equal(t, "U2147483697", message.User)
 	assert.Equal(t, "1433314126.000003", message.Timestamp)
 	assert.Equal(t, true, message.IsStarred)
@@ -84,7 +84,7 @@ var uploadedFile = `{
     "type": "message",
     "subtype": "file_share",
     "text": "<@U2147483697|tester> uploaded a file: <https:\/\/test.slack.com\/files\/tester\/abc\/test.txt|test.txt> and commented: test comment here",
-    "file": {
+    "files": [{
         "id": "abc",
         "created": 1433314757,
         "timestamp": 1433314757,
@@ -125,7 +125,7 @@ var uploadedFile = `{
             "user": "U2147483697",
             "comment": "test comment here"
         }
-    },
+    }],
     "user": "U2147483697",
     "upload": true,
     "ts": "1433314757.000006"
@@ -136,7 +136,7 @@ func TestUploadedFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "file_share", message.SubType)
+	assert.Equal(t, MsgSubTypeFileShare, message.SubType)
 	assert.Equal(t, "<@U2147483697|tester> uploaded a file: <https://test.slack.com/files/tester/abc/test.txt|test.txt> and commented: test comment here", message.Text)
 	// TODO: Assert File
 	assert.Equal(t, "U2147483697", message.User)
@@ -148,7 +148,7 @@ var testPost = `{
     "type": "message",
     "subtype": "file_share",
     "text": "<@U2147483697|tester> shared a file: <https:\/\/test.slack.com\/files\/tester\/abc\/test_post|test post>",
-    "file": {
+    "files": [{
         "id": "abc",
         "created": 1433315398,
         "timestamp": 1433315398,
@@ -179,7 +179,7 @@ var testPost = `{
         "groups": [],
         "ims": [],
         "comments_count": 1
-    },
+    }],
     "user": "U2147483697",
     "upload": false,
     "ts": "1433315416.000008"
@@ -190,7 +190,7 @@ func TestPost(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "file_share", message.SubType)
+	assert.Equal(t, MsgSubTypeFileShare, message.SubType)
 	assert.Equal(t, "<@U2147483697|tester> shared a file: <https://test.slack.com/files/tester/abc/test_post|test post>", message.Text)
 	// TODO: Assert File
 	assert.Equal(t, "U2147483697", message.User)
@@ -202,7 +202,7 @@ var testComment = `{
     "type": "message",
     "subtype": "file_comment",
     "text": "<@U2147483697|tester> commented on <@U2147483697|tester>'s file <https:\/\/test.slack.com\/files\/tester\/abc\/test_post|test post>: another comment",
-    "file": {
+    "files": [{
         "id": "abc",
         "created": 1433315398,
         "timestamp": 1433315398,
@@ -233,7 +233,7 @@ var testComment = `{
         "groups": [],
         "ims": [],
         "comments_count": 2
-    },
+    }],
     "comment": {
         "id": "xyz",
         "created": 1433316360,
@@ -250,7 +250,7 @@ func TestComment(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "file_comment", message.SubType)
+	assert.Equal(t, MsgSubTypeFileComment, message.SubType)
 	assert.Equal(t, "<@U2147483697|tester> commented on <@U2147483697|tester>'s file <https://test.slack.com/files/tester/abc/test_post|test post>: another comment", message.Text)
 	// TODO: Assert File
 	// TODO: Assert Comment
@@ -260,11 +260,29 @@ func TestComment(t *testing.T) {
 var botMessage = `{
     "type": "message",
     "subtype": "bot_message",
-    "ts": "1358877455.000010",
     "text": "Pushing is the answer",
+    "suppress_notification": false,
     "bot_id": "BB12033",
     "username": "github",
-    "icons": {}
+    "icons": {},
+    "team": "T01A9CUMPQA",
+    "bot_profile": {
+        "id": "BB12033",
+        "deleted": false,
+        "name": "github",
+        "updated": 1599574335,
+        "app_id": "A6DB2SWUW",
+        "icons": {
+            "image_36": "https://slack-files2.s3-us-west-2.amazonaws.com/avatars/2017-10-24/261138718469_ada58732a18da119678d_36.png",
+            "image_48": "https://slack-files2.s3-us-west-2.amazonaws.com/avatars/2017-10-24/261138718469_ada58732a18da119678d_48.png",
+            "image_72": "https://slack-files2.s3-us-west-2.amazonaws.com/avatars/2017-10-24/261138718469_ada58732a18da119678d_72.png"
+        },
+        "team_id": "T01A9CUMPQA"
+    },
+    "blocks": [],
+    "channel": "C01AZ844Z32",
+    "event_ts": "1358877455.000010",
+    "ts": "1358877455.000010"
 }`
 
 func TestBotMessage(t *testing.T) {
@@ -272,7 +290,7 @@ func TestBotMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "bot_message", message.SubType)
+	assert.Equal(t, MsgSubTypeBotMessage, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "Pushing is the answer", message.Text)
 	assert.Equal(t, "BB12033", message.BotID)
@@ -280,6 +298,17 @@ func TestBotMessage(t *testing.T) {
 	assert.NotNil(t, message.Icons)
 	assert.Empty(t, message.Icons.IconURL)
 	assert.Empty(t, message.Icons.IconEmoji)
+	assert.Equal(t, "github", message.BotProfile.Name)
+	assert.Equal(t, "BB12033", message.BotProfile.ID)
+	assert.Equal(t, false, message.BotProfile.Deleted)
+	assert.Equal(t, int64(1599574335), message.BotProfile.Updated)
+	assert.Equal(t, "A6DB2SWUW", message.BotProfile.AppID)
+	assert.Equal(t, "https://slack-files2.s3-us-west-2.amazonaws.com/avatars/2017-10-24/261138718469_ada58732a18da119678d_36.png", message.BotProfile.Icons.Image36)
+	assert.Equal(t, "https://slack-files2.s3-us-west-2.amazonaws.com/avatars/2017-10-24/261138718469_ada58732a18da119678d_48.png", message.BotProfile.Icons.Image48)
+	assert.Equal(t, "https://slack-files2.s3-us-west-2.amazonaws.com/avatars/2017-10-24/261138718469_ada58732a18da119678d_72.png", message.BotProfile.Icons.Image72)
+	assert.Equal(t, "T01A9CUMPQA", message.BotProfile.TeamID)
+	assert.Equal(t, "C01AZ844Z32", message.Channel)
+	assert.Equal(t, "1358877455.000010", message.EventTimestamp)
 }
 
 var meMessage = `{
@@ -296,7 +325,7 @@ func TestMeMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "me_message", message.SubType)
+	assert.Equal(t, MsgSubTypeMeMessage, message.SubType)
 	assert.Equal(t, "C2147483705", message.Channel)
 	assert.Equal(t, "U2147483697", message.User)
 	assert.Equal(t, "is doing that thing", message.Text)
@@ -326,7 +355,7 @@ func TestMessageChangedMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "message_changed", message.SubType)
+	assert.Equal(t, MsgSubTypeMessageChanged, message.SubType)
 	assert.True(t, message.Hidden)
 	assert.Equal(t, "C2147483705", message.Channel)
 	assert.NotNil(t, message.SubMessage)
@@ -354,7 +383,7 @@ func TestMessageDeletedMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "message_deleted", message.SubType)
+	assert.Equal(t, MsgSubTypeMessageDeleted, message.SubType)
 	assert.True(t, message.Hidden)
 	assert.Equal(t, "C2147483705", message.Channel)
 	assert.Equal(t, "1358878755.000001", message.Timestamp)
@@ -374,7 +403,7 @@ func TestChannelJoinMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "channel_join", message.SubType)
+	assert.Equal(t, MsgSubTypeChannelJoin, message.SubType)
 	assert.Equal(t, "1358877458.000011", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "<@U2147483828|cal> has joined the channel", message.Text)
@@ -394,7 +423,7 @@ func TestChannelJoinInvitedMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "channel_join", message.SubType)
+	assert.Equal(t, MsgSubTypeChannelJoin, message.SubType)
 	assert.Equal(t, "1358877458.000011", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "<@U2147483828|cal> has joined the channel", message.Text)
@@ -414,7 +443,7 @@ func TestChannelLeaveMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "channel_leave", message.SubType)
+	assert.Equal(t, MsgSubTypeChannelLeave, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "<@U2147483828|cal> has left the channel", message.Text)
@@ -434,7 +463,7 @@ func TestChannelTopicMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "channel_topic", message.SubType)
+	assert.Equal(t, MsgSubTypeChannelTopic, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "hello world", message.Topic)
@@ -455,7 +484,7 @@ func TestChannelPurposeMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "channel_purpose", message.SubType)
+	assert.Equal(t, MsgSubTypeChannelPurpose, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "whatever", message.Purpose)
@@ -477,7 +506,7 @@ func TestChannelNameMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "channel_name", message.SubType)
+	assert.Equal(t, MsgSubTypeChannelName, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "random", message.OldName)
@@ -499,7 +528,7 @@ func TestChannelArchiveMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "channel_archive", message.SubType)
+	assert.Equal(t, MsgSubTypeChannelArchive, message.SubType)
 	assert.Equal(t, "1361482916.000003", message.Timestamp)
 	assert.Equal(t, "<U1234|@cal> archived the channel", message.Text)
 	assert.Equal(t, "U1234", message.User)
@@ -520,10 +549,69 @@ func TestChannelUnarchiveMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "channel_unarchive", message.SubType)
+	assert.Equal(t, MsgSubTypeChannelUnarchive, message.SubType)
 	assert.Equal(t, "1361482916.000003", message.Timestamp)
 	assert.Equal(t, "<U1234|@cal> un-archived the channel", message.Text)
 	assert.Equal(t, "U1234", message.User)
+}
+
+var channelRepliesParentMessage = `{
+    "type": "message",
+    "user": "U1234",
+    "text": "test",
+    "thread_ts": "1493305433.915644",
+    "reply_count": 2,
+    "replies": [
+        {
+            "user": "U5678",
+            "ts": "1493305444.920992"
+        },
+        {
+            "user": "U9012",
+            "ts": "1493305894.133936"
+        }
+    ],
+    "subscribed": true,
+    "last_read": "1493305894.133936",
+    "unread_count": 0,
+    "ts": "1493305433.915644"
+}`
+
+func TestChannelRepliesParentMessage(t *testing.T) {
+	message, err := unmarshalMessage(channelRepliesParentMessage)
+	assert.Nil(t, err)
+	assert.NotNil(t, message)
+	assert.Equal(t, "message", message.Type)
+	assert.Equal(t, "U1234", message.User)
+	assert.Equal(t, "test", message.Text)
+	assert.Equal(t, "1493305433.915644", message.ThreadTimestamp)
+	assert.Equal(t, 2, message.ReplyCount)
+	assert.Equal(t, "U5678", message.Replies[0].User)
+	assert.Equal(t, "1493305444.920992", message.Replies[0].Timestamp)
+	assert.Equal(t, "U9012", message.Replies[1].User)
+	assert.Equal(t, "1493305894.133936", message.Replies[1].Timestamp)
+	assert.Equal(t, "1493305433.915644", message.Timestamp)
+}
+
+var channelRepliesChildMessage = `{
+    "type": "message",
+    "user": "U5678",
+    "text": "foo",
+    "thread_ts": "1493305433.915644",
+    "parent_user_id": "U1234",
+    "ts": "1493305444.920992"
+}`
+
+func TestChannelRepliesChildMessage(t *testing.T) {
+	message, err := unmarshalMessage(channelRepliesChildMessage)
+	assert.Nil(t, err)
+	assert.NotNil(t, message)
+	assert.Equal(t, "message", message.Type)
+	assert.Equal(t, "U5678", message.User)
+	assert.Equal(t, "foo", message.Text)
+	assert.Equal(t, "1493305433.915644", message.ThreadTimestamp)
+	assert.Equal(t, "U1234", message.ParentUserId)
+	assert.Equal(t, "1493305444.920992", message.Timestamp)
 }
 
 var groupJoinMessage = `{
@@ -539,7 +627,7 @@ func TestGroupJoinMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "group_join", message.SubType)
+	assert.Equal(t, MsgSubTypeGroupJoin, message.SubType)
 	assert.Equal(t, "1358877458.000011", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "<@U2147483828|cal> has joined the group", message.Text)
@@ -559,7 +647,7 @@ func TestGroupJoinInvitedMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "group_join", message.SubType)
+	assert.Equal(t, MsgSubTypeGroupJoin, message.SubType)
 	assert.Equal(t, "1358877458.000011", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "<@U2147483828|cal> has joined the group", message.Text)
@@ -579,7 +667,7 @@ func TestGroupLeaveMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "group_leave", message.SubType)
+	assert.Equal(t, MsgSubTypeGroupLeave, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "<@U2147483828|cal> has left the group", message.Text)
@@ -599,7 +687,7 @@ func TestGroupTopicMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "group_topic", message.SubType)
+	assert.Equal(t, MsgSubTypeGroupTopic, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "hello world", message.Topic)
@@ -620,7 +708,7 @@ func TestGroupPurposeMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "group_purpose", message.SubType)
+	assert.Equal(t, MsgSubTypeGroupPurpose, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "whatever", message.Purpose)
@@ -642,7 +730,7 @@ func TestGroupNameMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "group_name", message.SubType)
+	assert.Equal(t, MsgSubTypeGroupName, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "U2147483828", message.User)
 	assert.Equal(t, "random", message.OldName)
@@ -664,7 +752,7 @@ func TestGroupArchiveMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "group_archive", message.SubType)
+	assert.Equal(t, MsgSubTypeGroupArchive, message.SubType)
 	assert.Equal(t, "1361482916.000003", message.Timestamp)
 	assert.Equal(t, "<U1234|@cal> archived the group", message.Text)
 	assert.Equal(t, "U1234", message.User)
@@ -685,7 +773,7 @@ func TestGroupUnarchiveMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "group_unarchive", message.SubType)
+	assert.Equal(t, MsgSubTypeGroupUnarchive, message.SubType)
 	assert.Equal(t, "1361482916.000003", message.Timestamp)
 	assert.Equal(t, "<U1234|@cal> un-archived the group", message.Text)
 	assert.Equal(t, "U1234", message.User)
@@ -696,7 +784,7 @@ var fileShareMessage = `{
     "subtype": "file_share",
     "ts": "1358877455.000010",
     "text": "<@cal> uploaded a file: <https:...7.png|7.png>",
-    "file": {
+    "files": [{
         "id" : "F2147483862",
         "created" : 1356032811,
         "timestamp" : 1356032811,
@@ -735,7 +823,7 @@ var fileShareMessage = `{
         "initial_comment": {},
         "num_stars": 7,
         "is_starred": true
-    },
+    }],
     "user": "U2147483697",
     "upload": true
 }`
@@ -746,10 +834,10 @@ func TestFileShareMessage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, message)
 	assert.Equal(t, "message", message.Type)
-	assert.Equal(t, "file_share", message.SubType)
+	assert.Equal(t, MsgSubTypeFileShare, message.SubType)
 	assert.Equal(t, "1358877455.000010", message.Timestamp)
 	assert.Equal(t, "<@cal> uploaded a file: <https:...7.png|7.png>", message.Text)
 	assert.Equal(t, "U2147483697", message.User)
 	assert.True(t, message.Upload)
-	assert.NotNil(t, message.File)
+	assert.NotNil(t, message.Files[0])
 }

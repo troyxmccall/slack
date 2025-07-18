@@ -3,32 +3,30 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
-/*
-   WARNING: This example is destructive in the sense that it create a channel called testpinning
-*/
+// WARNING: This example is destructive in the sense that it create a channel called testpinning
 func main() {
-	var (
-		apiToken string
-		debug    bool
-	)
-
-	flag.StringVar(&apiToken, "token", "YOUR_TOKEN_HERE", "Your Slack API Token")
-	flag.BoolVar(&debug, "debug", false, "Show JSON output")
+	debug := flag.Bool("debug", false, "Show JSON output")
 	flag.Parse()
 
-	api := slack.New(apiToken)
-	if debug {
-		api.SetDebug(true)
+	// Get token from environment variable
+	apiToken := os.Getenv("SLACK_BOT_TOKEN")
+	if apiToken == "" {
+		fmt.Println("SLACK_BOT_TOKEN environment variable is required")
+		os.Exit(1)
 	}
+
+	api := slack.New(apiToken, slack.OptionDebug(*debug))
 
 	var (
 		postAsUserName  string
 		postAsUserID    string
 		postToChannelID string
+		channels        []slack.Channel
 	)
 
 	// Find the user to post as.
@@ -45,21 +43,21 @@ func main() {
 	postAsUserID = authTest.UserID
 
 	// Create a temporary channel
-	channel, err := api.CreateChannel(channelName)
+	channel, err := api.CreateConversation(slack.CreateConversationParams{ChannelName: channelName})
 
 	if err != nil {
 		// If the channel exists, that means we just need to unarchive it
 		if err.Error() == "name_taken" {
 			err = nil
-			channels, err := api.GetChannels(false)
-			if err != nil {
+			params := &slack.GetConversationsParameters{ExcludeArchived: false}
+			if channels, _, err = api.GetConversations(params); err != nil {
 				fmt.Println("Could not retrieve channels")
 				return
 			}
 			for _, archivedChannel := range channels {
 				if archivedChannel.Name == channelName {
 					if archivedChannel.IsArchived {
-						err = api.UnarchiveChannel(archivedChannel.ID)
+						err = api.UnArchiveConversation(archivedChannel.ID)
 						if err != nil {
 							fmt.Printf("Could not unarchive %s: %s\n", archivedChannel.ID, err)
 							return
@@ -80,8 +78,7 @@ func main() {
 	fmt.Printf("Posting as %s (%s) in channel %s\n", postAsUserName, postAsUserID, postToChannelID)
 
 	// Post a message.
-	postParams := slack.PostMessageParameters{}
-	channelID, timestamp, err := api.PostMessage(postToChannelID, "Is this any good?", postParams)
+	channelID, timestamp, err := api.PostMessage(postToChannelID, slack.MsgOptionText("Is this any good?", false))
 	if err != nil {
 		fmt.Printf("Error posting message: %s\n", err)
 		return
@@ -91,7 +88,7 @@ func main() {
 	msgRef := slack.NewRefToMessage(channelID, timestamp)
 
 	// Add message pin to channel
-	if err := api.AddPin(channelID, msgRef); err != nil {
+	if err = api.AddPin(channelID, msgRef); err != nil {
 		fmt.Printf("Error adding pin: %s\n", err)
 		return
 	}
@@ -115,7 +112,7 @@ func main() {
 		return
 	}
 
-	if err = api.ArchiveChannel(channelID); err != nil {
+	if err = api.UnArchiveConversation(channelID); err != nil {
 		fmt.Printf("Error archiving channel: %s\n", err)
 		return
 	}
